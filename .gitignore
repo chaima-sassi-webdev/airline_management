@@ -1,0 +1,8 @@
+# Ignorer les fichiers et dossiers SQL locaux
+Database/
+*.sql
+*.bak
+bin/
+obj/
+.vs/
+*.user
