@@ -1,0 +1,54 @@
+@model IEnumerable<MonProjetAirlplane.Models.ArticleViewModel>
+
+@{
+    ViewData["Title"] = "Gestion des Articles et Menus";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Prestations et Articles à bord</h2>
+        <div>
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary btn-sm">Retour au Dashboard</a>
+            <a asp-action="Create" class="btn btn-primary btn-sm">Ajouter un Article</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Nom</th>
+                            <th>Catégorie</th>
+                            <th>Prix</th>
+                            <th>Description</th>
+                            <th>Disponibilité</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="fw-bold">@item.Name</td>
+                                <td><span class="badge bg-info text-dark">@item.Category</span></td>
+                                <td>@item.Price.ToString("0.00") €</td>
+                                <td>@item.Description</td>
+                                <td>
+                                    <span class="badge @(item.IsAvailable ? "bg-success" : "bg-secondary")">
+                                        @(item.IsAvailable ? "Disponible" : "Indisponible")
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Modifier</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer cet article ?');">Supprimer</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,333 @@
+@model MonProjetAirlplane.Models.DashboardViewModel
+
+@{
+    ViewData["Title"] = "Tableau de Bord Tunisair";
+    int currentPage = ViewData["CurrentPage"] is int page ? page : 1;
+    int totalPages = ViewData["TotalPages"] is int total ? total : 1;
+    string currentFilter = ViewData["CurrentFilter"] as string ?? "";
+    string currentSort = ViewData["CurrentSort"] as string ?? "";
+}
+<!-- 🚨 SECTION DES ALERTES ET PERTURBATIONS EN TEMPS RÉEL -->
+    @if (Model.RecentAlerts != null && Model.RecentAlerts.Any())
+    {
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="card shadow-sm border-danger border-start border-4 bg-light">
+                    <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center py-2">
+                        <span class="fw-bold"><i class="fas fa-exclamation-triangle me-2"></i> Alertes & Perturbations Actives (@Model.RecentAlerts.Count)</span>
+                        <small class="text-white-50">Mise à jour en direct</small>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="list-group list-group-flush">
+                            @foreach (var alert in Model.RecentAlerts)
+                            {
+                                <div class="list-group-item d-flex justify-content-between align-items-center bg-transparent py-3">
+                                    <div class="d-flex align-items-start gap-3">
+                                        <div class="mt-1">
+                                            <span class="badge bg-danger rounded-pill px-2 py-1">@alert.Severity</span>
+                                        </div>
+                                        <div>
+                                            <h6 class="mb-1 fw-bold text-dark">Vol @alert.FlightNumber : @alert.Title</h6>
+                                            <p class="mb-0 text-muted small">@alert.Message</p>
+                                            <small class="text-secondary" style="font-size: 0.75rem;">Signalé le @alert.CreatedAt.ToString("dd/MM/yyyy à HH:mm")</small>
+                                        </div>
+                                    </div>
+                                    <div>
+                                        <form asp-controller="AdminAlerts" asp-action="Resolve" asp-route-id="@alert.Id" method="post" class="d-inline">
+                                            <button type="submit" class="btn btn-outline-success btn-sm shadow-sm" title="Marquer comme résolu">
+                                                <i class="fas fa-check me-1"></i> Résoudre
+                                            </button>
+                                        </form>
+                                    </div>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+<div class="container-fluid px-4">
+    <!-- BARRE D'ACTIONS RAPIDES (Utilisateurs & Déconnexion) -->
+    <div class="d-flex justify-content-between align-items-center mt-3 mb-2">
+        <div>
+            <span class="text-muted small"><i class="fas fa-user-shield me-1"></i> Connecté en mode Administrateur</span>
+        </div>
+        <div class="d-flex gap-2">
+            <a asp-controller="Flights" asp-action="ExportPdf" class="btn btn-danger btn-sm shadow-sm d-flex align-items-center gap-1">
+                <i class="fas fa-file-pdf"></i> Télécharger en PDF
+            </a>
+            <form method="post" asp-area="Identity" asp-page="/Account/Logout" asp-route-returnUrl="@Url.Page("/Account/Login", new { area = "Identity" })" class="d-inline">
+                <button type="submit" class="btn btn-outline-danger btn-sm shadow-sm">
+                    <i class="fas fa-sign-out-alt me-1"></i> Déconnexion
+                </button>
+            </form>                                                                                                                
+        </div>
+    </div>
+    
+    <h1 class="mt-4 text-primary fw-bold">✈️ Tunisair Executive Dashboard</h1>
+    <ol class="breadcrumb mb-4">
+        <li class="breadcrumb-item active">Vue d'ensemble opérationnelle et trafic passagers</li>
+    </ol>
+    <br />
+
+    <!-- 1. SECTION DES KPIS -->
+    <div class="row">
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-primary text-white mb-4 shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase small">Total Passagers Transportés</h6>
+                    <h3 class="fw-bold">@Model.TotalPaxFlown.ToString("N0")</h3>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between bg-transparent border-0 text-white-50">
+                    <small>Classe C & Y combinées</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-success text-white mb-4 shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase small">Volume Réservations</h6>
+                    <h3 class="fw-bold">@Model.TotalPaxBooked.ToString("N0")</h3>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between bg-transparent border-0 text-white-50">
+                    <small>Prévisions / Bookings</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-warning text-dark mb-4 shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase small">Tarif Moyen Global</h6>
+                    <h3 class="fw-bold">@Model.AverageFareGlobal.ToString("C")</h3>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between bg-transparent border-0 text-dark">
+                    <small>Indicateur yield management</small>
+                </div>
+            </div>
+        </div>
+        <div class="col-xl-3 col-md-6">
+            <div class="card bg-danger text-white mb-4 shadow-sm border-0">
+                <div class="card-body">
+                    <h6 class="card-title text-uppercase small">Vols Enregistrés</h6>
+                    <h3 class="fw-bold">@Model.TotalFlights</h3>
+                </div>
+                <div class="card-footer d-flex align-items-center justify-content-between bg-transparent border-0 text-white-50">
+                    <small>Lignes analysées</small>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <!-- 2. SECTION GRAPHIQUES -->
+    <div class="row">
+        <div class="col-xl-6 mb-4">
+            <div class="card shadow-sm border-0" style="height: 450px;">
+                <div class="card-header bg-light fw-bold">
+                    <i class="fas fa-chart-pie me-1"></i> Répartition des Passagers (Classe Affaires C vs Éco Y)
+                </div>
+                <div class="card-body position-relative d-flex justify-content-center align-items-center" style="height: calc(450px - 41px);">
+                    <canvas id="paxClassChart"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-6 mb-4">
+            <div class="card shadow-sm border-0" style="height: 450px;">
+                <div class="card-header bg-light fw-bold">
+                    <i class="fas fa-chart-bar me-1"></i> Top Destinations / Escales d'Arrivée
+                </div>
+                <div class="card-body position-relative" style="height: calc(450px - 41px);">
+                    <canvas id="destinationsChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+
+    <!-- 3. TABLEAU DES DERNIERS VOLS AVEC RECHERCHE -->
+    <div class="card mb-4 shadow-sm border-0">
+        <div class="card-header bg-light d-flex justify-content-between align-items-center fw-bold flex-wrap gap-2 py-3">
+            <span><i class="fas fa-table me-1"></i> Derniers Vols Opérationnels Enregistrés</span>
+            
+            <div class="d-flex align-items-center gap-2">
+                <div class="input-group input-group-sm" style="width: 250px;">
+                    <input type="text" id="searchImmat" class="form-control" placeholder="Rechercher vol, immat, escale...">
+                    <span class="input-group-text bg-primary text-white"><i class="fas fa-search"></i></span>
+                </div>
+
+                <a asp-controller="Flights" asp-action="ExportRecentPdf" class="btn btn-danger btn-sm shadow-sm d-flex align-items-center gap-1" title="Télécharger les vols récemment ajoutés">
+                    <i class="fas fa-file-pdf"></i> PDF 
+                </a>
+            </div>
+        </div>
+    
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle" id="flightsTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Zone / Pays</th>
+                            <th>Vol</th>
+                            <th>Immatriculation</th>
+                            <th>Date</th>
+                            <th>Escale Arrivée</th>
+                            <th>Pax C</th>
+                            <th>Pax Y</th>
+                            <th>Tarif Moyen</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentFlights != null && Model.RecentFlights.Any())
+                        {
+                            @foreach (var item in Model.RecentFlights)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (item.Market != null)
+                                        {
+                                            <span>@item.Market.ZoneGeo</span><br />
+                                            <span class="text-muted small">@item.Market.Pays</span>
+                                        }
+                                        else
+                                        {
+                                            <span>N/A</span>
+                                        }
+                                    </td>
+                                    <td class="fw-bold">@item.FN_CARRIER @item.FN_NUMBER</td>
+                                    <td><span class="badge bg-secondary">@item.AC_REGISTRATION</span></td>
+                                    <td>@item.DAY_OF_ORIGIN</td>
+                                    <td><span class="badge bg-info text-dark">@item.ARR_AP_ACTUAL</span></td>
+                                    <td>@item.PAX_FLOWN_C</td>
+                                    <td>@item.PAX_FLOWN_Y</td>
+                                    <td class="fw-bold text-success">@item.AVG_FARE.ToString("N2")</td>
+                                </tr>
+                            }
+                        }
+                        else
+                        {
+                            <tr>
+                                <td colspan="8" class="text-center text-muted py-3">Aucun vol récent trouvé.</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                
+                <!-- Barre de Pagination -->
+                @if (totalPages > 1)
+                {
+                    <nav aria-label="Navigation de page" class="mt-4">
+                        <ul class="pagination justify-content-center">
+                            <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                                <a class="page-link" asp-controller="Dashboard" asp-action="Index" asp-route-pageNumber="@(currentPage - 1)">Précédent</a>
+                            </li>
+
+                            <li class="page-item disabled">
+                                <span class="page-link bg-light text-dark">Page @currentPage sur @totalPages</span>
+                            </li>
+
+                            <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                                <a class="page-link" asp-controller="Dashboard" asp-action="Index" asp-route-pageNumber="@(currentPage + 1)">Suivant</a>
+                            </li>
+                        </ul>
+                    </nav>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Scripts JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    // 1. Filtrage en temps réel global du tableau
+    document.getElementById('searchImmat').addEventListener('keyup', function () {
+        let filter = this.value.toUpperCase();
+        let table = document.getElementById('flightsTable');
+        let tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            let row = tr[i];
+            let tds = row.getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < tds.length; j++) {
+                let td = tds[j];
+                if (td) {
+                    let txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            row.style.display = found ? "" : "none";
+        }
+    });
+
+    // 2. Graphique Camembert : Classe C vs Y
+    const ctxPie = document.getElementById('paxClassChart');
+    new Chart(ctxPie, {
+        type: 'doughnut',
+        data: {
+            labels: ['Classe Affaires (C)', 'Classe Économique (Y)'],
+            datasets: [{
+                data: [@Model.TotalPaxC, @Model.TotalPaxY],
+                backgroundColor: ['#0d6efd', '#ffc107'],
+                borderWidth: 2
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' }
+            }
+        }
+    });
+
+    // 3. Graphique Barres : Top Destinations
+    const ctxBar = document.getElementById('destinationsChart');
+    const destLabels = @Json.Serialize(Model.TopDestinations != null ? Model.TopDestinations.Keys.ToList() : new List<string>());
+    const destData = @Json.Serialize(Model.TopDestinations != null ? Model.TopDestinations.Values.ToList() : new List<int>());
+
+    new Chart(ctxBar, {
+        type: 'bar',
+        data: {
+            labels: destLabels,
+            datasets: [{
+                label: 'Nombre de vols / flux',
+                data: destData,
+                backgroundColor: '#198754',
+                borderRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false }
+            },
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+</script>
+<script>
+    // Fonction de mise à jour automatique des statistiques toutes les 30 secondes
+    function refreshDashboardStats() {
+        fetch('/api/dashboard/stats')
+            .then(response => response.json())
+            .then(data => {
+                console.log("Statistiques mises à jour en temps réel à " + data.lastUpdated);
+                // Vous pouvez cibler des éléments HTML spécifiques par ID si vous souhaitez les animer
+            })
+            .catch(error => console.error('Erreur lors du rafraîchissement des stats:', error));
+    }
+
+    // Lancer le timer toutes les 30 secondes
+    setInterval(refreshDashboardStats, 30000);
+</script>

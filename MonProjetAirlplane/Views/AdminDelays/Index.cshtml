@@ -1,0 +1,54 @@
+@model IEnumerable<MonProjetAirlplane.Models.DelayViewModel>
+
+@{
+    ViewData["Title"] = "Suivi des Retards";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Suivi des Retards (Delays)</h2>
+        <div>
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary btn-sm">Retour au Dashboard</a>
+            <a asp-action="Create" class="btn btn-primary btn-sm">Ajouter un Retard</a>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Vol</th>
+                            <th>Retard (min)</th>
+                            <th>Raison</th>
+                            <th>Date</th>
+                            <th>Statut</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>@item.FlightNumber</td>
+                                <td><span class="badge bg-danger">@item.DelayMinutes min</span></td>
+                                <td>@item.Reason</td>
+                                <td>@item.DelayDate.ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <span class="badge @(item.Status == "En cours" ? "bg-warning text-dark" : "bg-success")">
+                                        @item.Status
+                                    </span>
+                                </td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Modifier</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm" onclick="return confirm('Supprimer cet enregistrement ?');">Supprimer</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>

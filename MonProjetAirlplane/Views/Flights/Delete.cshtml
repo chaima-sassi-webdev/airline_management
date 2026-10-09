@@ -1,0 +1,42 @@
+@model MonProjetAirlplane.Models.Flight
+
+@{
+    ViewData["Title"] = "Supprimer le vol";
+}
+
+<div class="container mt-4" style="max-width: 600px;">
+    <div class="card shadow p-4 border-danger">
+        <h3 class="text-danger mb-3"><i class="fas fa-exclamation-triangle"></i> Supprimer le vol</h3>
+        <h5 class="text-muted">Êtes-vous sûr de vouloir supprimer ce vol ?</h5>
+        <hr />
+        
+        <dl class="row">
+            <dt class="col-sm-5">Vol</dt>
+            <dd class="col-sm-7"><span class="badge bg-primary">@Model.Vol</span></dd>
+
+            <dt class="col-sm-5">Immatriculation</dt>
+            <dd class="col-sm-7">@Model.Immatriculation</dd>
+
+            <dt class="col-sm-5">Date</dt>
+            <dd class="col-sm-7">@Model.Date</dd>
+
+            <dt class="col-sm-5">ArrivalEscale</dt>
+            <dd class="col-sm-7"><strong>@Model.ArrivalEscale</strong></dd>
+
+            <dt class="col-sm-5">PaxClub (C)</dt>
+            <dd class="col-sm-7">@Model.PaxClub</dd>
+
+            <dt class="col-sm-5">PaxEco (Y)</dt>
+            <dd class="col-sm-7">@Model.PaxEco</dd>
+
+            <dt class="col-sm-5">TarifMoyen</dt>
+            <dd class="col-sm-7">@Model.TarifMoyen.ToString("C")</dd>
+        </dl>
+        
+        <form asp-action="Delete" class="mt-3 d-flex justify-content-between">
+            <input type="hidden" asp-for="Id" />
+            <a asp-action="Index" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Retour à la liste</a>
+            <button type="submit" class="btn btn-danger"><i class="fas fa-trash-alt"></i> Supprimer définitivement</button>
+        </form>
+    </div>
+</div>

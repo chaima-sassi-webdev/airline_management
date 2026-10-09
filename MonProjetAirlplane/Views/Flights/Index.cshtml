@@ -1,0 +1,125 @@
+@model IEnumerable<MonProjetAirlplane.Models.Flight>
+
+@{
+    ViewData["Title"] = "Liste des Vols";
+    int currentPage = ViewData["CurrentPage"] is int page ? page : 1;
+    int totalPages = ViewData["TotalPages"] is int total ? total : 1;
+    string currentFilter = ViewData["CurrentFilter"] as string ?? "";
+    string currentSort = ViewData["CurrentSort"] as string ?? "";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>Liste des Vols - Tunisair</h2>
+        <div>
+            <a asp-controller="Dashboard" asp-action="Index" class="btn btn-secondary btn-sm">Retour au Dashboard</a>
+            <a asp-action="Create" class="btn btn-primary btn-sm">Ajouter un Vol</a>
+        </div>
+    </div>
+
+    <!-- Barre de recherche -->
+    <div class="card shadow-sm border-0 mb-3">
+        <div class="card-body py-2">
+            <div class="input-group">
+                <span class="input-group-text bg-primary text-white"><i class="fas fa-search"></i></span>
+                <input type="text" id="searchFlight" class="form-control" placeholder="Rechercher par vol, immatriculation, escale...">
+            </div>
+        </div>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table table-striped table-hover align-middle" id="flightsTable">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>Zone / Pays</th>
+                            <th>Vol</th>
+                            <th>Immatriculation</th>
+                            <th>Date</th>
+                            <th>Escale Arrivée</th>
+                            <th>Pax C</th>
+                            <th>Pax Y</th>
+                            <th>Tarif Moyen</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td>N/A</td>
+                                <td>@item.FN_CARRIER @item.FN_NUMBER</td>
+                                <td>@item.AC_REGISTRATION</td>
+                                <td>@(item.DAY_OF_ORIGIN)</td>
+                                <td>@item.ARR_AP_ACTUAL</td>
+                                <td>@item.PAX_FLOWN_C</td>
+                                <td>@item.PAX_FLOWN_Y</td>
+                                <td>@item.AVG_FARE.ToString("N2")</td>
+                                <td>
+                                    <a asp-action="Edit" asp-route-id="@item.Id" class="btn btn-warning btn-sm">Modifier</a>
+                                    <a asp-action="Delete" asp-route-id="@item.Id" class="btn btn-danger btn-sm">Supprimer</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Barre de Pagination -->
+            @if (totalPages > 1)
+            {
+                <nav aria-label="Navigation de page" class="mt-4">
+                    <ul class="pagination justify-content-center">
+                        <!-- Bouton Précédent -->
+                        <li class="page-item @(currentPage == 1 ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@(currentPage - 1)" asp-route-sortOrder="@currentSort" asp-route-searchString="@currentFilter">Précédent</a>
+                        </li>
+
+                        <!-- Affichage intelligent (ex: Page actuelle sur total) -->
+                        <li class="page-item disabled">
+                            <span class="page-link bg-light text-dark">Page @currentPage sur @totalPages</span>
+                        </li>
+
+                        <!-- Bouton Suivant -->
+                        <li class="page-item @(currentPage == totalPages ? "disabled" : "")">
+                            <a class="page-link" asp-action="Index" asp-route-pageNumber="@(currentPage + 1)" asp-route-sortOrder="@currentSort" asp-route-searchString="@currentFilter">Suivant</a>
+                        </li>
+                    </ul>
+                </nav>
+            }
+        </div>
+    </div>
+</div>
+
+<!-- Script JavaScript pour le filtrage en temps réel -->
+<script>
+    document.getElementById('searchFlight').addEventListener('keyup', function () {
+        let filter = this.value.toUpperCase();
+        let table = document.getElementById('flightsTable');
+        let tr = table.getElementsByTagName('tr');
+
+        for (let i = 1; i < tr.length; i++) {
+            let row = tr[i];
+            let tds = row.getElementsByTagName('td');
+            let found = false;
+
+            for (let j = 0; j < tds.length - 1; j++) { // On exclut la colonne Actions
+                let td = tds[j];
+                if (td) {
+                    let txtValue = td.textContent || td.innerText;
+                    if (txtValue.toUpperCase().indexOf(filter) > -1) {
+                        found = true;
+                        break;
+                    }
+                }
+            }
+
+            if (found) {
+                row.style.display = "";
+            } else {
+                row.style.display = "none";
+            }
+        }
+    });
+</script>

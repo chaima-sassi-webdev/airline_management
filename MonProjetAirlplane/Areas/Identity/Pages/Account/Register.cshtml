@@ -1,0 +1,141 @@
+﻿@page
+@model RegisterModel
+@{
+    ViewData["Title"] = "Ajouter un utilisateur - Tunisair";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <!-- FontAwesome pour les icônes -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" />
+    <style>
+        body {
+            background: linear-gradient(135deg, #004b87 0%, #002752 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 2rem 0;
+        }
+        .register-card {
+            background: #ffffff;
+            padding: 3rem 4rem;
+            border-radius: 16px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+            width: 100%;
+            max-width: 600px;
+        }
+        .register-logo {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        .register-logo h2 {
+            font-weight: 700;
+            color: #004b87;
+            margin-bottom: 0.4rem;
+            font-size: 2rem;
+        }
+        .form-group-custom {
+            margin-bottom: 1.5rem;
+        }
+        .form-group-custom label {
+            display: block;
+            font-weight: 600;
+            font-size: 0.9rem;
+            color: #495057;
+            margin-bottom: 0.6rem;
+        }
+        .form-group-custom input.form-control {
+            width: 100% !important;
+            padding: 0.85rem 1.1rem;
+            font-size: 1rem;
+            border-radius: 8px;
+            border: 1px solid #ced4da;
+        }
+        .form-group-custom input.form-control:focus {
+            border-color: #004b87;
+            box-shadow: 0 0 0 0.25rem rgba(0, 75, 135, 0.15);
+        }
+        .btn-tunisair {
+            background-color: #004b87;
+            border-color: #004b87;
+            color: #ffffff;
+            width: 100%;
+            padding: 0.85rem;
+            font-weight: 650;
+            font-size: 1.05rem;
+            border-radius: 8px;
+            transition: background-color 0.2s;
+        }
+        .btn-tunisair:hover {
+            background-color: #00335e;
+            color: #ffffff;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="register-card">
+        <div class="register-logo">
+            <h2>✈️ Tunisair</h2>
+            <p class="text-muted mb-0">Créer un nouveau compte utilisateur</p>
+        </div>
+
+        <form id="registerForm" asp-route-returnUrl="@Model.ReturnUrl" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-3 small" role="alert"></div>
+
+            <!-- Champ Email -->
+            <div class="form-group-custom">
+                <label asp-for="Input.Email">
+                    <i class="fas fa-envelope me-1 text-primary"></i> Adresse Email
+                </label>
+                <input asp-for="Input.Email" class="form-control" autocomplete="username" aria-required="true" placeholder="nom@tunisair.com" />
+                <span asp-validation-for="Input.Email" class="text-danger small"></span>
+            </div>
+
+            <!-- Champ Mot de passe -->
+            <div class="form-group-custom">
+                <label asp-for="Input.Password">
+                    <i class="fas fa-lock me-1 text-primary"></i> Mot de passe
+                </label>
+                <input asp-for="Input.Password" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" />
+                <span asp-validation-for="Input.Password" class="text-danger small"></span>
+            </div>
+
+            <!-- Champ Confirmation Mot de passe -->
+            <div class="form-group-custom">
+                <label asp-for="Input.ConfirmPassword">
+                    <i class="fas fa-lock me-1 text-primary"></i> Confirmer le mot de passe
+                </label>
+                <input asp-for="Input.ConfirmPassword" class="form-control" autocomplete="new-password" aria-required="true" placeholder="••••••••" />
+                <span asp-validation-for="Input.ConfirmPassword" class="text-danger small"></span>
+            </div>
+
+            <!-- Bouton de validation -->
+            <button id="registerSubmit" type="submit" class="btn btn-tunisair shadow-sm mb-4">
+                <i class="fas fa-user-plus me-2"></i> Enregistrer l'utilisateur
+            </button>
+            <br /> <br />
+            <!-- Lien de retour vers la connexion -->
+            <div class="text-center pt-2">
+                <a asp-page="./Login" class="text-decoration-none text-muted fw-semibold small">
+                    <i class="fas fa-arrow-left me-1"></i> Vous avez déjà un compte ? Se connecter
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <partial name="_ValidationScriptsPartial" />
+</body>
+</html>

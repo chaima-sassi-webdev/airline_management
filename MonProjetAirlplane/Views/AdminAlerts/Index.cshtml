@@ -1,0 +1,51 @@
+@model IEnumerable<MonProjetAirlplane.Models.Alert>
+
+@{
+    ViewData["Title"] = "Gestion des Alertes Opérationnelles";
+}
+
+<div class="container mt-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2>🚨 Alertes Opérationnelles Actives</h2>
+        <a asp-controller="Dashboard"  class="btn btn-secondary">Retour au Dashboard</a>
+    </div>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-success" role="alert">
+            Aucune alerte active pour le moment. Tout est sous contrôle !
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-striped table-hover shadow-sm bg-white rounded">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID / Vol</th>
+                        <th>Message / Description</th>
+                        <th>Date</th>
+                        <th class="text-center">Action</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var alert in Model)
+                    {
+                        <tr>
+                            <td><strong>@alert.Id</strong></td>
+                            <td>@alert.Message <!-- Adaptez selon les propriétés de votre modèle Alert --></td>
+                            <td>@alert.CreatedAt.ToString("dd/MM/yyyy HH:mm") <!-- Si vous avez une date de création --></td>
+                            <td class="text-center">
+                                <form asp-action="Resolve" asp-route-id="@alert.Id" method="post" style="display:inline;">
+                                    <button type="submit" class="btn btn-success btn-sm">
+                                        <i class="fas fa-check"></i> Marquer comme résolue
+                                    </button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
